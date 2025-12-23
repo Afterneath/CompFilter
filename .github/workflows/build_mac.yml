@@ -12,13 +12,11 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4 # Updated to v4
       with:
-        submodules: recursive # Pulls JUCE if it's a submodule
+        submodules: recursive
 
     - name: Configure CMake
-      # We assume JUCE is inside the repo. If not, we might need to fetch it.
-      # This builds for x86_64 (Intel) and arm64 (M1/M2/M3)
       run: cmake -B build -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_BUILD_TYPE=Release
 
     - name: Build
@@ -30,7 +28,7 @@ jobs:
         zip -r -y CompFilter_Mac.zip CompFilter.vst3
 
     - name: Upload Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4 # Updated to v4
       with:
         name: Mac-VST3-Build
         path: build/CompFilter_artefacts/Release/VST3/CompFilter_Mac.zip
