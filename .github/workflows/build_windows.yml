@@ -1,0 +1,37 @@
+name: Build Windows Plugin
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build_windows:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Configure CMake
+      # Windows defaults to MSVC (Microsoft Visual C++)
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      run: cmake --build build --config Release
+
+    - name: Zip the Plugin
+      shell: pwsh
+      run: |
+        # Find the VST3 folder and zip it using PowerShell
+        $vst3Path = Get-ChildItem -Path build -Filter "*.vst3" -Recurse -Directory | Select-Object -First 1
+        Compress-Archive -Path $vst3Path.FullName -DestinationPath CompFilter_Windows.zip
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Windows-VST3-Build
+        path: CompFilter_Windows.zip
