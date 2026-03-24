@@ -12,23 +12,27 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4 # Updated to v4
+      uses: actions/checkout@v4
       with:
         submodules: recursive
 
+    - name: List files for debugging
+      run: ls -R
+
     - name: Configure CMake
-      run: cmake -B build -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_BUILD_TYPE=Release
+      run: cmake . -B build -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_BUILD_TYPE=Release
 
     - name: Build
       run: cmake --build build --config Release
 
     - name: Zip the Plugin
       run: |
-        cd build/CompFilter_artefacts/Release/VST3
-        zip -r -y CompFilter_Mac.zip CompFilter.vst3
+        VST3_PATH=$(find build -name "*.vst3" -type d | head -n 1)
+        cd $(dirname $VST3_PATH)
+        zip -r -y CompFilter_Mac.zip $(basename $VST3_PATH)
 
     - name: Upload Artifact
-      uses: actions/upload-artifact@v4 # Updated to v4
+      uses: actions/upload-artifact@v4
       with:
         name: Mac-VST3-Build
-        path: build/CompFilter_artefacts/Release/VST3/CompFilter_Mac.zip
+        path: build/**/*.zip
