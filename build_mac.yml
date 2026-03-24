@@ -1,0 +1,36 @@
+name: Build Mac Plugin
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build_mac:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive # Pulls JUCE if it's a submodule
+
+    - name: Configure CMake
+      # We assume JUCE is inside the repo. If not, we might need to fetch it.
+      # This builds for x86_64 (Intel) and arm64 (M1/M2/M3)
+      run: cmake -B build -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      run: cmake --build build --config Release
+
+    - name: Zip the Plugin
+      run: |
+        cd build/CompFilter_artefacts/Release/VST3
+        zip -r -y CompFilter_Mac.zip CompFilter.vst3
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Mac-VST3-Build
+        path: build/CompFilter_artefacts/Release/VST3/CompFilter_Mac.zip
