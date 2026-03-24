@@ -1,2 +1,0 @@
-# Hashes of file build rules.
-3f70442aa6e3e3f97ddce29ae6434ebf CompFilter_artefacts/JuceLibraryCode/JuceHeader.h
